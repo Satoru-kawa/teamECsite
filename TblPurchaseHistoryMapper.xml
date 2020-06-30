@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.internous.angular.model.mapper.TblPurchaseHistoryMapper">
+	<insert id="insert" useGeneratedKeys="true" parameterType="hashmap">
+        INSERT INTO tbl_purchase_history
+            (user_id, product_id, product_count, price, destination_id)
+            SELECT 
+                cart.user_id, cart.product_id, cart.product_count,product.price, #{destinationId}
+            FROM
+                 tbl_cart cart
+            JOIN
+                 mst_product product
+            ON
+                 cart.product_id = product.id
+            WHERE
+                 cart.user_id = #{userId};
+
+    </insert>
+    
+    <select id="findByUserId" resultType="jp.co.internous.angular.model.domain.dto.PurchaseHistoryDto">
+	SELECT
+		tbl_purchase_history.id,
+		tbl_purchase_history.user_id,
+		tbl_purchase_history.product_id,
+		tbl_purchase_history.destination_id,
+		tbl_purchase_history.purchased_at,
+		mst_product.product_name,
+		tbl_purchase_history.price,
+		tbl_purchase_history.product_count,
+		mst_destination.family_name,
+		mst_destination.first_name,
+		mst_destination.address
+	FROM
+		tbl_purchase_history
+		INNER JOIN mst_product ON tbl_purchase_history.product_id = mst_product.id
+		INNER JOIN mst_destination ON tbl_purchase_history.destination_id = mst_destination.id
+	
+	WHERE tbl_purchase_history.user_id = #{userId} 
+		AND tbl_purchase_history.status = 1
+	ORDER BY purchased_at DESC;
+	</select>
+
+</mapper>

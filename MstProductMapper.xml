@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.internous.angular.model.mapper.MstProductMapper">
+
+  <select id="findByCategoryIdAndProductName" resultType="jp.co.internous.angular.model.domain.MstProduct">
+    SELECT * FROM mst_product WHERE category_id = #{categoryId} AND product_name LIKE CONCAT('%', #{productName}, '%')
+  </select>
+  
+  <select id="findByProductName" resultType="jp.co.internous.angular.model.domain.MstProduct">
+    SELECT * FROM mst_product WHERE product_name LIKE CONCAT('%', #{productName}, '%')
+  </select>
+
+</mapper>

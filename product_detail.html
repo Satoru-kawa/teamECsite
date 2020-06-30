@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+
+<link href="/css/reset.css" th:href="@{/css/reset.css}" rel="stylesheet" />
+<link href="/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" />
+
+<title>Angular Bakery</title>
+</head>
+<body>
+
+<header th:insert="fragments/page_header::pageHeader"></header>
+
+<main>
+
+	<div class="container">
+		<table class="top">
+			<caption><span th:text="${product.productName}"></span>（<span th:text="${product.productNameKana}"></span>）</caption>
+			<tr>
+				<th>画像</th><th>価格</th><th>発売元</th><th>発売年月日</th>
+			</tr>
+			<tr>
+				<td class="imageDetail">
+					<img class="itemImageDetail" th:src="${product.imageFullPath}" />
+				</td>
+				
+				<td class="number" th:text="${product.price} + 円" />
+				<td th:text="${product.releaseCompany}" />
+				<td th:text="${product.releaseDate}" />
+			</tr>
+		</table>
+		<form action="/angular/cart/add" th:action="@{/angular/cart/add}" method="POST">
+			<label id="description">商品説明</label>
+			<textarea cols="75" rows="5" readonly th:text="${product.productDescription}"></textarea>
+			
+			<hr />
+			
+			<div class="buttonArea">
+				<label>購入個数</label>
+				<input type="number" class="count number" value="0" min="0" id="countNumber" name="productCount"/>
+				<input type="hidden" id="hiddenProductId" th:value="${product.id}" name="productId" />
+				<button type="submit" id="addCart">カートに追加</button>
+			</div>
+		</form>
+	</div>
+
+</main>
+
+<script>
+$(() => {
+	$('#addCart').on('click', () => {
+		let productCount = $('#countNumber').val();
+		
+		if (productCount == 0) {
+			alert("個数が0です。");
+			return false;
+		}
+		
+		$('form').attr('action', '/angular/cart/add');
+		$('form').submit();
+	});
+});
+</script>
+
+</body>
+</html>

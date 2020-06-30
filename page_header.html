@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Angular Bakery</title>
+</head>
+<body>
+
+	<th:block th:fragment="pageHeader">
+		<script src="http://code.jquery.com/jquery-3.4.1.min.js"></script>
+		<script
+			src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+		<link rel="stylesheet"
+			href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+		<script src="/js/util/stringUtil.js"
+			th:src="@{/js/util/stringUtil.js}"></script>
+		<script src="/js/util/validator.js" th:src="@{/js/util/validator.js}"></script>
+		<script src="/js/dialogConfig.js" th:src="@{/js/dialogConfig.js}"></script>
+		<script>
+		$(() => {
+		
+		  $('#loginError').dialog(dialogConfig.loginError);
+		  
+		  $('button#login').on('click', () => {
+		    let userName = $('input[name="userName"]').val();
+		    let password = $('input[name="password"]').val();
+		    let data = {
+		        "userName":userName,
+		        "password":password
+		    };
+		    $.ajax({
+		    type: 'POST',
+		    url: '/angular/auth/login',
+		    data: JSON.stringify(data),
+		    contentType: 'application/json',
+		    datatype: 'json',
+		    scriptCharset: 'utf-8'
+		  })	
+		    .then((result) => {
+		      let user = JSON.parse(result);
+		      if(user == '1'){
+		        $('#loginError').dialog('open');
+		      }else{
+		        login(user);
+		      }
+		    });
+		  });
+		
+		  $('button#logout').on('click', () => {
+		    $.ajax({
+		        type: 'GET',
+		        url: '/angular/auth/logout',
+		    })	
+		    .then((result) => {
+		      let cheak = JSON.parse(result);
+		        if(cheak == '0'){
+		          logout();
+		          alert(`ログアウトしました。`);	
+		          window.location.href = '/angular/';
+		    }})
+		  });
+		  
+		});
+		
+		  function login(user) {
+			let userName = user['userName'];
+			$('.welcomeMsg').text(`ようこそ！ ${userName} さん`);
+			
+			var check = $('button#login').attr("class");
+			if(check == "orangeButton"){
+				$('button#login').removeClass('orangeButton');
+				$('button#login').addClass('hidden');
+				$('button#logout').removeClass('hidden');
+				$('button#logout').addClass('orangeButton');
+			}
+			var mypageCheck = $('#mypageMenu').attr("class");
+			if (mypageCheck == 'hidden') {
+				$('#mypageMenu').removeClass('hidden');
+				$('#mypageMenu').addClass('orangeButton');
+			}
+			$('div.loginArea input[name=userName]').val('');
+			$('div.loginArea input[name=password]').val('');
+		  }
+		  
+		  function logout(){
+			$('.welcomeMsg').text(`ようこそ！ ゲスト さん`);
+
+			var check = $('button#logout').attr("class");
+			if(check == "orangeButton"){
+				$('button#login').removeClass('hidden');
+				$('button#login').addClass('orangeButton');
+				$('button#logout').removeClass('orangeButton');
+				$('button#logout').addClass('hidden');
+			}
+			var mypageCheck = $('#mypageMenu').attr("class");
+			if(mypageCheck == "orangeButton"){
+				$('#mypageMenu').removeClass('orangeButton');
+				$('#mypageMenu').addClass('hidden');
+			}
+			$('div.loginArea input[name=userNmae]').val('');
+			$('div.loginArea input[name=userNmae]').val('');
+		  }
+		  
+
+		</script>
+		
+		<div class="headerTop">
+			<div id="topTitleBox" onclick="location.href='/angular/';">
+				<h1 id="topTitle">Angular Bakery</h1>
+				<p id="topSubtitle">〜 Everyday Fresh Bread 〜</p>
+			</div>
+			<div id="welcomeBox">
+				<span class="signup">
+					<a href="/angular/user/" th:href="@{/angular/user/}">
+					新規ユーザ登録はこちら
+					</a>
+				</span>
+				<span class="welcomeMsg"
+				 th:text="'ようこそ！ '+${loginSession.userName != null ? loginSession.userName : 'ゲスト'}+' さん'">
+				</span>
+			</div>
+		</div>
+
+		<nav>
+			<div class="loginArea">
+				<input type="text" name="userName" />
+				<input type="password" name="password" />
+				<button id="login" th:class="${loginSession == null || loginSession.getUserName() == null ? 'orangeButton' : 'hidden'}" >ログイン</button>
+				<button id="logout" th:class="${loginSession == null || loginSession.getUserName() == null ? 'hidden' : 'orangeButton'}" >ログアウト</button>
+			</div>
+			<ul class="menu">
+				<li class="cartButton orangeButton"><a href="/angular/cart/" th:href="@{/angular/cart/}">カート</a></li>
+				<li id="mypageMenu" th:class="${loginSession == null || loginSession.getUserName() == null ? 'hidden' : 'orangeButton'}" >
+					<a href="/angular/mypage/" th:href="@{/angular/mypage/}">マイページ</a>
+				</li>
+			</ul>
+		</nav>
+
+		<div th:insert="fragments/dialog_login_error::dialogLoginError"></div>
+
+		<input type="hidden" id="hiddenUserName" th:value="${loginSession.userName}" />
+
+	</th:block>
+
+
+</body>
+</html>
